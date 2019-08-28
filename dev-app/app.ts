@@ -21,8 +21,8 @@ export class App {
     content: "Zelle 2"
   },
   {
-    x: 3,
-    y: 5,
+    x: 6,
+    y: 3,
     width: 4,
     height: 10,
     cellClass: "cell1",

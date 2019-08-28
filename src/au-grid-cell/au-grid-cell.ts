@@ -15,7 +15,7 @@ export class AuGridCell {
 
   @computedFrom("cell.width", "sizeOptions.columns")
   get width() {
-    return Math.floor(this.cell.width / this.sizeOptions.columns * 100) + "%";
+    return (this.cell.width / this.sizeOptions.columns * 100) + "%";
   }
   
   @computedFrom("cell.height", "sizeOptions.cellHeight")

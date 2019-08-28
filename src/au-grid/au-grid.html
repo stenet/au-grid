@@ -1,6 +1,7 @@
 <template css="height:${height};">
   <require from="./au-grid.less"></require>
   <require from="../au-grid-cell/au-grid-cell"></require>
+  <require from="../au-grid-cell-placeholder/au-grid-cell-placeholder"></require>
 
   <template repeat.for="cell of cells">
     <au-grid-cell 
@@ -9,4 +10,9 @@
       manipulate-options.bind="manipulateOptions"
       manipulate-info.bind="manipulateInfo"></au-grid-cell>
   </template>
+
+  <au-grid-cell-placeholder
+    if.bind="placeholder"
+    placeholder.bind="placeholder"
+    size-options.bind="sizeOptions"></au-grid-cell-placeholder>
 </template>
