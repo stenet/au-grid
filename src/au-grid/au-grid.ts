@@ -52,6 +52,14 @@ export class AuGrid {
     }
   }
 
+  //TODO addCell
+  //TODO how to delete a cell?
+  //TODO view-model-support
+  //TODO test with scrolling
+  addCell(cell: IAuGridCell) {
+
+  }
+
   cellsChanged() {
     this.createCellManipulatorsIfMissing();
   }
