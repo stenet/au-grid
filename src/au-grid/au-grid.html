@@ -1,16 +1,21 @@
 <template css="height:${height};">
-  <require from="./au-grid.less"></require>
+  <require from="./au-grid.css"></require>
   <require from="../au-grid-cell/au-grid-cell"></require>
   <require from="../au-grid-cell-placeholder/au-grid-cell-placeholder"></require>
 
-  <template repeat.for="cell of cells">
-    <au-grid-cell 
-      cell.bind="cell"
-      manipulate-options.bind="manipulateOptions"
-      manipulate-info.bind="manipulateInfo"></au-grid-cell>
-  </template>
+  <div class="au-grid__container">
+    <template repeat.for="cell of cells">
+      <au-grid-cell 
+        cell.bind="cell"
+        manipulate-options.bind="manipulateOptions"
+        manipulate-info.bind="manipulateInfo"
+        padding.bind="padding"></au-grid-cell>
+    </template>
 
-  <au-grid-cell-placeholder
-    if.bind="placeholder"
-    placeholder.bind="placeholder"></au-grid-cell-placeholder>
+    <au-grid-cell-placeholder
+      if.bind="placeholder"
+      placeholder.bind="placeholder"
+      padding.bind="padding"></au-grid-cell-placeholder>
+  </div>
+
 </template>

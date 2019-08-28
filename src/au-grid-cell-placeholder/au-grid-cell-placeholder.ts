@@ -6,4 +6,5 @@ export class AuGridCellPlaceholder {
   constructor() {}
 
   @bindable placeholder: IAuGridCellPlaceholder;
+  @bindable padding: number;
 }

@@ -1,7 +1,9 @@
-<template class="${cellClass}" css="width:${cell.manipulate.w};height:${cell.manipulate.h};top:${cell.manipulate.t};left:${cell.manipulate.l}">
-  <require from="./au-grid-cell.less"></require>
+<template class="${cellClass}" css="width:${cell.manipulate.w};height:${cell.manipulate.h};top:${cell.manipulate.t};left:${cell.manipulate.l};padding:${padding}px">
+  <require from="./au-grid-cell.css"></require>
 
-  <div innerhtml.bind="cell.content">
+  <div class="au-grid-cell__content">
+    <div innerhtml.bind="cell.content">
+  </div>
 
   </div>
 </template>

@@ -1,6 +1,11 @@
 au-grid-cell-placeholder {
   display: block;
   position: absolute;
+  box-sizing: border-box;
+  transition: left .2s ease-out, top .2s ease-out, width .2s ease-out, height .2s ease-out;
+}
+.au-grid-cell-placeholder__content {
   border: 1px dashed gray;
+  height: 100%;
   box-sizing: border-box;
 }

@@ -1,13 +1,15 @@
 au-grid-cell {
   display: block;
   position: absolute;
-  border: 1px solid #aaa;
-  background-color: #ccc;
   box-sizing: border-box;
 
   &:not(.au-grid-cell-manipulate) {
-    transition: left .3s ease-out, top .3s ease-out, width .3s ease-out, height .3s ease-out;
+    transition: left .2s ease-out, top .2s ease-out, width .2s ease-out, height .2s ease-out;
   }
+}
+.au-grid-cell__content {
+  height: 100%;
+  box-sizing: border-box;
 }
 .au-grid-cell-manipulate {
   opacity: .3;

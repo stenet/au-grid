@@ -22,6 +22,7 @@ export class AuGrid {
   @bindable @observable cells: IAuGridCell[] = [];
   @bindable columns = 12;
   @bindable cellHeight = 25;
+  @bindable padding = 5;
 
   @bindable manipulateOptions: IAuGridManipulateOptions = {
     canMove: true,
@@ -33,7 +34,7 @@ export class AuGrid {
   placeholder: IAuGridCellPlaceholder = null;
 
   bind() {
-    this.checkCellManipulators();
+    this.createCellManipulatorsIfMissing();
     this.calcCellsPosAndSize();
     this.updateHeight();
 
@@ -50,7 +51,7 @@ export class AuGrid {
   }
 
   cellsChanged() {
-    this.checkCellManipulators();
+    this.createCellManipulatorsIfMissing();
   }
 
   updateHeight() {
@@ -73,7 +74,7 @@ export class AuGrid {
       : "20px";
   } 
 
-  private checkCellManipulators() {
+  private createCellManipulatorsIfMissing() {
     if (!this.cells) {
       return;
     }
@@ -107,10 +108,44 @@ export class AuGrid {
 
   }
   private calcCellPosAndSize(manipulate: IAuGridCellManipulate) {
-    manipulate.w = (manipulate.width / this.columns * 100) + "%";
-    manipulate.h = (manipulate.height * this.cellHeight) + "px";
-    manipulate.l = (1 / this.columns * manipulate.x * 100) + "%";
-    manipulate.t = (manipulate.y * this.cellHeight) + "px";
+    if (this.manipulateInfo && this.manipulateInfo.cell.cell.manipulate == manipulate) {
+      if (this.manipulateInfo.resizing) {
+        manipulate.w = (manipulate.width / this.columns * 100) + "%";
+        manipulate.h = (manipulate.height * this.cellHeight) + "px";
+        manipulate.l = (1 / this.columns * manipulate.x * 100) + "%";
+        manipulate.t = (manipulate.y * this.cellHeight) + "px";
+      } else if (this.manipulateInfo.dragging) {
+        manipulate.w = (manipulate.width / this.columns * 100) + "%";
+        manipulate.h = (manipulate.height * this.cellHeight) + "px";
+        manipulate.l = (this.manipulateInfo.origLeft - this.manipulateInfo.origMouseLeft + this.manipulateInfo.currMouseLeft) + "px";
+        manipulate.t = (this.manipulateInfo.origTop - this.manipulateInfo.origMouseTop + this.manipulateInfo.currMouseTop) + "px";
+      } else {
+        throw new Error("invalid manipulateInfo");
+      }
+    } else {
+      manipulate.w = (manipulate.width / this.columns * 100) + "%";
+      manipulate.h = (manipulate.height * this.cellHeight) + "px";
+      manipulate.l = (1 / this.columns * manipulate.x * 100) + "%";
+      manipulate.t = (manipulate.y * this.cellHeight) + "px";
+    }
+  }
+  private updatePosAndSizeFromManipulator() {
+    this.cells
+      .forEach(c => {
+        c.x = c.manipulate.x;
+        c.y = c.manipulate.y;
+        c.width = c.manipulate.width;
+        c.height = c.manipulate.height;
+      })
+  }
+  private updatePosAndSizeToManipulator() {
+    this.cells
+      .forEach(c => {
+        c.manipulate.x = c.x;
+        c.manipulate.y = c.y;
+        c.manipulate.width = c.width;
+        c.manipulate.height = c.height;
+      })
   }
   
   private onMouseDown(ev: MouseEvent) {
@@ -140,6 +175,7 @@ export class AuGrid {
     
     this.removeManipulateInfo();
     this.deactivatePlaceholder();
+    this.updatePosAndSizeFromManipulator();
     this.updateHeight();
   }
   private onMouseMove(ev: MouseEvent) {
@@ -167,10 +203,10 @@ export class AuGrid {
     return <IAuGridManipulateInfo>{
       element,
       cell,
-      origX: cell.cell.x,
-      origY: cell.cell.y,
-      origWidth: cell.cell.width,
-      origHeight: cell.cell.height,
+      origX: cell.cell.manipulate.x,
+      origY: cell.cell.manipulate.y,
+      origWidth: cell.cell.manipulate.width,
+      origHeight: cell.cell.manipulate.height,
       origTop: element.offsetTop,
       origLeft: element.offsetLeft,
       origMouseLeft: ev.x,
@@ -182,7 +218,19 @@ export class AuGrid {
     };
   }
   private removeManipulateInfo() {
+    if (!this.manipulateInfo) {
+      return;
+    }
+
+    const manipulate = this.manipulateInfo.cell.cell.manipulate;
     this.manipulateInfo = null;
+
+    manipulate.x = this.placeholder.x;
+    manipulate.y = this.placeholder.y;
+    manipulate.width = this.placeholder.width;
+    manipulate.height = this.placeholder.height;
+
+    this.calcCellPosAndSize(manipulate);
   }
 
   private activatePlaceholder() {
@@ -240,22 +288,22 @@ export class AuGrid {
     this.placeholder.x = xNew;
     this.placeholder.y = yNew;
 
-    this.calcCellPosAndSize(this.placeholder);
+    console.log(`x: ${xNew}, y: ${yNew}`);
   }
   private deactivatePlaceholder() {
     this.placeholder = null;
   }
   
-  private getCellsSorted(addPlaceholder: boolean = false) {
-    const cells = this.cells
+  private getOverlappingCells(cell: IAuGridCellBase, checkCells?: IAuGridCellBase[]) {
+    return (checkCells || this.cells)
+      .filter(c => !this.manipulateInfo || this.manipulateInfo.cell.cell != c)
+      .filter(c => c != cell)
+      .filter(c => this._sizeService.isOverlapping(cell, c));
+  }
+  private resolveOverlaps() {
+    const manipulators = this.cells
       .map(c => c.manipulate)
-      .filter(c => !this.manipulateInfo || this.manipulateInfo.cell.cell != c);
-
-    if (this.placeholder && addPlaceholder) {
-      cells.push(this.placeholder);
-    }
-
-    return cells
+      .filter(c => !this.manipulateInfo || this.manipulateInfo.cell.cell.manipulate != c)
       .sort((a, b) => {
         if (a.y != b.y) {
           return a.y - b.y;
@@ -263,24 +311,16 @@ export class AuGrid {
 
         return a.x - b.x;
       });
-  }
-  private getOverlappingCells(cell: IAuGridCellBase, checkCells?: IAuGridCellBase[]) {
-    return (checkCells || this.cells)
-      .filter(c => !this.manipulateInfo || this.manipulateInfo.cell.cell != c)
-      .filter(c => this._sizeService.isOverlapping(cell, c));
-  }
-  private resolveOverlaps() {
-    const cells = this.getCellsSorted();
 
     if (this.placeholder) {
-      cells.splice(0, 0, this.placeholder);
+      manipulators.splice(0, 0, this.placeholder);
     }
 
-    for (let i = 0; i < cells.length; i++) {
-      const cell = cells[i];
+    for (let i = 0; i < manipulators.length; i++) {
+      const cell = manipulators[i];
 
       while (true) {
-        const overlappingCells = this.getOverlappingCells(cell, cells.slice(i + 1));
+        const overlappingCells = this.getOverlappingCells(cell, manipulators.slice(i + 1));
         if (overlappingCells.length == 0) {
           break;
         }
@@ -291,22 +331,35 @@ export class AuGrid {
     }
   }
   private compressCells() {
-    const cells = this.getCellsSorted(true);
+    const manipulators = this.cells
+      .map(c => c.manipulate)
+      .filter(c => !this.manipulateInfo || this.manipulateInfo.cell.cell.manipulate != c);
+      
+    manipulators.push(this.placeholder);
 
-    for (let cell of cells) {
-      while (cell.y > 0) {
+    manipulators
+      .sort((a, b) => {
+        if (a.y != b.y) {
+          return a.y - b.y;
+        }
+
+        return a.x - b.x;
+      });
+
+    for (let manipulator of manipulators) {
+      while (manipulator.y > 0) {
         const overlappingCells = this.getOverlappingCells({
-          x: cell.x,
-          y: cell.y - 1,
-          width: this.manipulateInfo.origWidth,
-          height: this.manipulateInfo.origHeight
-        });
+          x: manipulator.x,
+          y: manipulator.y - 1,
+          width: manipulator.width,
+          height: manipulator.height
+        }, manipulators.filter(c => c != manipulator));
   
         if (overlappingCells.length > 0) {
           break;
         }
   
-        cell.y--;
+        manipulator.y--;
       }
     }
   }

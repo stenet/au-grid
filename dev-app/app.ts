@@ -16,15 +16,15 @@ export class App {
     x: 6,
     y: 0,
     width: 4,
-    height: 1,
+    height: 4,
     cellClass: "cell2",
     content: "Zelle 2"
   },
   {
     x: 6,
-    y: 3,
-    width: 4,
-    height: 10,
+    y: 5,
+    width: 2,
+    height: 2,
     cellClass: "cell1",
     content: "Zelle 3"
   }]

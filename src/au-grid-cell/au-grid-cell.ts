@@ -8,6 +8,7 @@ export class AuGridCell {
   constructor() {}
 
   @bindable cell: IAuGridCell;
+  @bindable padding: number;
   @bindable manipulateOptions: IAuGridManipulateOptions;
   @bindable manipulateInfo: IAuGridManipulateInfo;
 
