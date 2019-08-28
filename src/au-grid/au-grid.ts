@@ -174,8 +174,8 @@ export class AuGrid {
   private calcCellPosAndSize(manipulate: IAuGridCellManipulate) {
     if (this.manipulateInfo && this.manipulateInfo.cell.cell.manipulate == manipulate) {
       if (this.manipulateInfo.resizing) {
-        manipulate.w = (manipulate.width / this.columns * 100) + "%";
-        manipulate.h = (manipulate.height * this.cellHeight) + "px";
+        manipulate.w = (this.manipulateInfo.origClientWidth - this.manipulateInfo.origMouseLeft + this.manipulateInfo.currMouseLeft) + "px";
+        manipulate.h = (this.manipulateInfo.origClientHeight - this.manipulateInfo.origMouseTop + this.manipulateInfo.currMouseTop) + "px";
         manipulate.l = (1 / this.columns * manipulate.x * 100) + "%";
         manipulate.t = (manipulate.y * this.cellHeight) + "px";
       } else if (this.manipulateInfo.moving) {
@@ -276,6 +276,8 @@ export class AuGrid {
       origY: cell.cell.manipulate.y,
       origWidth: cell.cell.manipulate.width,
       origHeight: cell.cell.manipulate.height,
+      origClientWidth: element.clientWidth,
+      origClientHeight: element.clientHeight,
       origTop: element.offsetTop,
       origLeft: element.offsetLeft,
       origMouseLeft: ev.x,

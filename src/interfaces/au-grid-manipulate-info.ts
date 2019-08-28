@@ -13,6 +13,8 @@ export interface IAuGridManipulateInfo {
 
   origTop: number;
   origLeft: number;
+  origClientWidth: number;
+  origClientHeight: number;
 
   origMouseTop: number;
   origMouseLeft: number;
