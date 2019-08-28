@@ -1,4 +1,17 @@
 <template>
   <require from="./app.css"></require>
-  <au-grid cells.bind="cells"></au-grid>
+
+  <span>Columns</span>
+  <input value.bind="columns" type="number">
+
+  <span>CellHeight</span>
+  <input value.bind="cellHeight" type="number">
+
+  <au-grid 
+    cells.bind="cells" 
+    columns.bind="columns" 
+    cell-height.bind="cellHeight" 
+    auto-columns="true"
+    can-move="true"
+    can-resize="true"></au-grid>
 </template>

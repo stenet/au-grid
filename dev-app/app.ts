@@ -17,6 +17,10 @@ export class App {
     y: 0,
     width: 4,
     height: 4,
+    minHeight: 4,
+    maxHeight: 6,
+    minWidth: 4,
+    maxWidth: 6,
     cellClass: "cell2",
     content: "Zelle 2"
   },
@@ -27,5 +31,8 @@ export class App {
     height: 2,
     cellClass: "cell1",
     content: "Zelle 3"
-  }]
+  }];
+
+  columns = 12;
+  cellHeight = 25;
 }

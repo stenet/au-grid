@@ -6,10 +6,20 @@ au-grid-cell {
   &:not(.au-grid-cell-manipulate) {
     transition: left .2s ease-out, top .2s ease-out, width .2s ease-out, height .2s ease-out;
   }
+  &:hover .au-grid-cell__resize {
+    display: block;
+  }
 }
 .au-grid-cell__content {
   height: 100%;
   box-sizing: border-box;
+}
+.au-grid-cell__resize {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  right: 3px;
+  cursor: nw-resize;
 }
 .au-grid-cell-manipulate {
   opacity: .3;

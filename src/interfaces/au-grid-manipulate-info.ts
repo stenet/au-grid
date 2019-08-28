@@ -4,7 +4,7 @@ export interface IAuGridManipulateInfo {
   element: HTMLElement;
   cell: AuGridCell;
   resizing: boolean;
-  dragging: boolean;
+  moving: boolean;
 
   origX: number;
   origY: number;

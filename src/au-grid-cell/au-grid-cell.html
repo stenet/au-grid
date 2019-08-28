@@ -2,8 +2,8 @@
   <require from="./au-grid-cell.css"></require>
 
   <div class="au-grid-cell__content">
-    <div innerhtml.bind="cell.content">
+    <div innerhtml.bind="cell.content"></div>
+    <div if.bind="canResize" class="au-grid-cell__resize" css="padding:${padding}px;">⇲</div>
   </div>
 
-  </div>
 </template>
