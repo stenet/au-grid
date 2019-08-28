@@ -1,13 +1,21 @@
 <template>
   <require from="./app.css"></require>
 
-  <span>Columns</span>
-  <input value.bind="columns" type="number">
+  <div class="func">
+    <span>Columns</span>
+    <input value.bind="columns" type="number">
+  
+    <span>CellHeight</span>
+    <input value.bind="cellHeight" type="number">
+  
+    <button click.delegate="onAddClick()">Add</button>
+    <button click.delegate="onDeleteClick()">Delete</button>
+    <button click.delegate="onSaveClick()">Save</button>
+    <button click.delegate="onLoadClick()">Load</button>
+  </div>
 
-  <span>CellHeight</span>
-  <input value.bind="cellHeight" type="number">
-
-  <au-grid 
+  <au-grid
+    view-model.ref="grid"
     cells.bind="cells" 
     columns.bind="columns" 
     cell-height.bind="cellHeight" 

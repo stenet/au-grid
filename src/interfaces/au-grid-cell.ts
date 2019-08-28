@@ -10,5 +10,7 @@ export interface IAuGridCell extends IAuGridCellBase {
   maxHeight?: number;
   maxWidth?: number;
 
-  content: string;
+  viewModel?: string;
+  model?: any;
+  data?: any;
 }

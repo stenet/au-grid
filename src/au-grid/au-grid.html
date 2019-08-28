@@ -1,9 +1,11 @@
-<template css="height:${height};">
+<template css="height:${height};margin:-${padding}px">
   <require from="./au-grid.css"></require>
   <require from="../au-grid-cell/au-grid-cell"></require>
   <require from="../au-grid-cell-placeholder/au-grid-cell-placeholder"></require>
 
-  <div class="au-grid__container">
+  <div class="au-grid__container" 
+    au-grid-cell-delete.delegate="onCellDelete($event)"
+    au-grid-cell-update-height.delegate="onCellUpdateHeight($event)">
     <template repeat.for="cell of cells">
       <au-grid-cell 
         cell.bind="cell"
