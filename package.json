@@ -1,10 +1,10 @@
 {
   "name": "aurelia-dashboard-grid",
   "description": "Grid with Drag & Drop functionality e.g. for creating dashboards",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
-    "type": "???",
-    "url": "???"
+    "type": "git",
+    "url": "git+https://github.com/stenet/au-grid"
   },
   "license": "UNLICENSED",
   "devDependencies": {
@@ -46,7 +46,6 @@
   },
   "main": "dist/commonjs/index.js",
   "module": "dist/native-modules/index.js",
-  "private": true,
   "files": [
     "dist"
   ]
