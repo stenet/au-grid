@@ -12,5 +12,4 @@ export interface IAuGridCell extends IAuGridCellBase {
 
   viewModel?: string;
   model?: any;
-  data?: any;
 }

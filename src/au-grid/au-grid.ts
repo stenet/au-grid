@@ -305,7 +305,6 @@ export class AuGrid {
     ev.stopPropagation();
 
     this.manipulateInfo = this.createManipulateInfo(ev, cellEl, cell, isResize, isDragging);
-    this.activatePlaceholder();
 
     window.addEventListener("mousemove", this._onMouseMove);
     window.addEventListener("mouseup", this._onMouseUp);
@@ -316,6 +315,18 @@ export class AuGrid {
 
     if (!this.manipulateInfo) {
       return;
+    }
+
+    if (!this.manipulateInfo.hasMoved) {
+      const isSamePos = this.manipulateInfo.currMouseLeft == ev.x 
+        && this.manipulateInfo.currMouseTop == ev.y;
+
+      if (isSamePos) {
+        return;
+      }
+
+      this.manipulateInfo.hasMoved = true;
+      this.activatePlaceholder();
     }
 
     this.manipulateInfo.currMouseLeft = ev.x;
@@ -342,7 +353,7 @@ export class AuGrid {
     window.removeEventListener("mouseup", this._onMouseUp);
   }
 
-  private createManipulateInfo(ev: MouseEvent, element: HTMLElement, cell: AuGridCell, resizing: boolean, dragging: boolean) {
+  private createManipulateInfo(ev: MouseEvent, element: HTMLElement, cell: AuGridCell, resizing: boolean, moving: boolean) {
     return <IAuGridManipulateInfo>{
       element,
       cell,
@@ -358,8 +369,9 @@ export class AuGrid {
       origMouseTop: ev.y,
       currMouseLeft: ev.x,
       currMouseTop: ev.y,
-      moving: dragging,
-      resizing
+      moving: moving,
+      resizing: resizing,
+      hasMoved: false
     };
   }
   private removeManipulateInfo() {
@@ -370,10 +382,12 @@ export class AuGrid {
     const manipulate = this.manipulateInfo.cell.cell.manipulate;
     this.manipulateInfo = null;
 
-    manipulate.x = this.placeholder.x;
-    manipulate.y = this.placeholder.y;
-    manipulate.width = this.placeholder.width;
-    manipulate.height = this.placeholder.height;
+    if (this.placeholder) {
+      manipulate.x = this.placeholder.x;
+      manipulate.y = this.placeholder.y;
+      manipulate.width = this.placeholder.width;
+      manipulate.height = this.placeholder.height;
+    }
 
     this.calcCellPosAndSize(manipulate);
   }

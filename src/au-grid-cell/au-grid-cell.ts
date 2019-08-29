@@ -11,7 +11,7 @@ export class AuGridCell {
   @bindable canResize: boolean;
   @bindable manipulateInfo: IAuGridManipulateInfo;
 
-  @computedFrom("cell.cellClass", "manipulateInfo.cell")
+  @computedFrom("cell.cellClass", "manipulateInfo.cell", "manipulateInfo.hasMoved")
   get cellClass() {
     const classes = [];
     
@@ -19,7 +19,7 @@ export class AuGridCell {
       classes.push(this.cell.cellClass);
     }
 
-    if (this.manipulateInfo && this.manipulateInfo.cell == this) {
+    if (this.manipulateInfo && this.manipulateInfo.cell == this && this.manipulateInfo.hasMoved) {
       classes.push("au-grid-cell-manipulate");
     }
 

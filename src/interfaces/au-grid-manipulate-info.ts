@@ -6,6 +6,8 @@ export interface IAuGridManipulateInfo {
   resizing: boolean;
   moving: boolean;
 
+  hasMoved: boolean;
+
   origX: number;
   origY: number;
   origWidth: number;

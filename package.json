@@ -1,6 +1,6 @@
 {
-  "name": "aurelia-grid",
-  "description": "An Aurelia plugin project.",
+  "name": "aurelia-dashboard-grid",
+  "description": "Grid with Drag & Drop functionality e.g. for creating dashboards",
   "version": "0.1.0",
   "repository": {
     "type": "???",

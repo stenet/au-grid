@@ -14,6 +14,10 @@
     <button click.delegate="onLoadClick()">Load</button>
   </div>
 
+  <template if.bind="settingViewModel">
+    <compose view-model.bind="settingViewModel" model.bind="settingModel"></compose>
+  </template>
+
   <au-grid
     view-model.ref="grid"
     cells.bind="cells" 
@@ -21,5 +25,6 @@
     cell-height.bind="cellHeight" 
     auto-columns="true"
     can-move="true"
-    can-resize="true"></au-grid>
+    can-resize="true"
+    widget-setting.delegate="onWidgetSetting($event)"></au-grid>
 </template>

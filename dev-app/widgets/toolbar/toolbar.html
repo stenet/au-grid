@@ -1,0 +1,6 @@
+<template>
+  <require from="./toolbar.css"></require>
+
+  <button if.bind="model.widget.settingViewModel" click.delegate="onSettingClick()">⚙</button>
+  <button click.delegate="onDeleteClick()">🗑</button>
+</template>
