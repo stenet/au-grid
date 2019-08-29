@@ -1,4 +1,4 @@
-import { autoinject, bindable, computedFrom, elementConfig, observable, bindingBehavior } from "aurelia-framework";
+import { autoinject, bindable, observable } from "aurelia-framework";
 import { IAuGridCell } from "../interfaces/au-grid-cell";
 import { IAuGridManipulateInfo } from "../interfaces/au-grid-manipulate-info";
 import { AuGridCell } from "../au-grid-cell/au-grid-cell";
@@ -63,6 +63,8 @@ export class AuGrid {
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
+
+    this.dispatchChangedEvent();
   }
   deleteCell(cell: IAuGridCell) {
     const indexOf = this.cells.indexOf(cell);
@@ -74,6 +76,8 @@ export class AuGrid {
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
+
+    this.dispatchChangedEvent();
   }
   getCells() {
     return this.cells;
@@ -347,6 +351,8 @@ export class AuGrid {
     this.deactivatePlaceholder();
     this.updatePosAndSizeFromManipulator();
     this.updateHeight();
+
+    this.dispatchChangedEvent();
   }
   private clearMouseEvents() {
     window.removeEventListener("mousemove", this._onMouseMove);
@@ -560,5 +566,14 @@ export class AuGrid {
         manipulator.y--;
       }
     }
+  }
+
+  private dispatchChangedEvent() {
+    this._element.dispatchEvent(new CustomEvent(
+      "au-grid-changed", {
+        bubbles: true,
+        detail: {}
+      }
+    ));
   }
 }

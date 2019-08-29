@@ -1,4 +1,4 @@
-import { AuGridCell } from "au-grid-cell/au-grid-cell";
+import { AuGridCell } from "../au-grid-cell/au-grid-cell";
 
 export interface IAuGridManipulateInfo {
   element: HTMLElement;
