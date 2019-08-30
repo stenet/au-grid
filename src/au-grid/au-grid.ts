@@ -1,4 +1,4 @@
-import { autoinject, bindable, observable } from "aurelia-framework";
+import { autoinject, bindable, observable, TaskQueue } from "aurelia-framework";
 import { IAuGridCell } from "../interfaces/au-grid-cell";
 import { IAuGridManipulateInfo } from "../interfaces/au-grid-manipulate-info";
 import { AuGridCell } from "../au-grid-cell/au-grid-cell";
@@ -17,7 +17,8 @@ export class AuGrid {
 
   constructor(
     private _element: Element,
-    private _sizeService: SizeService
+    private _sizeService: SizeService,
+    private _taskQueue: TaskQueue
   ) { }
 
   @bindable @observable cells: IAuGridCell[] = [];
@@ -40,7 +41,7 @@ export class AuGrid {
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent();
 
     this._onMouseDown = this.onMouseDown.bind(this);
     this._onMouseMove = this.onMouseMove.bind(this);
@@ -56,6 +57,13 @@ export class AuGrid {
   }
 
   addCell(cell: IAuGridCell) {
+    cell.width = this.getValidatedCellWidth(cell, cell.width);
+    cell.height = this.getValidatedCellHeight(cell, cell.height);
+
+    if (!cell.y || !cell.y) {
+      this.findAndUpdateFreePos(cell);
+    }
+
     cell.manipulate = this.createCellManipulator(cell);
     this.cells.push(cell);
 
@@ -65,7 +73,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent();
     this.dispatchChangedEvent();
   }
   deleteCell(cell: IAuGridCell) {
@@ -79,7 +87,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent();
     this.dispatchChangedEvent();
   }
   getCells() {
@@ -92,7 +100,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent(200);
   }
   columnsChanged() {
     this.validateCellManipulators();
@@ -101,7 +109,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent(200);
   }
   cellHeightChanged() {
     this.resolveOverlaps();
@@ -109,7 +117,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent(200);
   }
   canResizeChanged() {
     this.checkMouseDownHandlers();
@@ -178,7 +186,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent(200);
   }
 
   private createCellManipulatorsIfMissing() {
@@ -363,7 +371,7 @@ export class AuGrid {
     this.updatePosAndSizeFromManipulator();
     this.updateHeight();
 
-    this.dispatchSizeUpdatedEvent();
+    this.dispatchSizeChangedEvent(200);
     this.dispatchChangedEvent();
   }
   private clearMouseEvents() {
@@ -408,7 +416,6 @@ export class AuGrid {
     }
 
     this.calcCellPosAndSize(manipulate);
-    this.dispatchSizeUpdatedEvent();
   }
 
   private activatePlaceholder() {
@@ -467,15 +474,8 @@ export class AuGrid {
       this.placeholder.x = xNew;
       this.placeholder.y = yNew;
     } else if (this.manipulateInfo.resizing) {
-      let widthNew = this.manipulateInfo.origWidth + xAdd;
       let xNew = this.manipulateInfo.origX;
-
-      if (this.manipulateInfo.cell.cell.minWidth && widthNew < this.manipulateInfo.cell.cell.minWidth) {
-        widthNew = this.manipulateInfo.cell.cell.minWidth;
-      }
-      if (this.manipulateInfo.cell.cell.maxWidth && widthNew > this.manipulateInfo.cell.cell.maxWidth) {
-        widthNew = this.manipulateInfo.cell.cell.maxWidth;
-      }
+      let widthNew = this.getValidatedCellWidth(this.manipulateInfo.cell.cell, this.manipulateInfo.origWidth + xAdd);
 
       if (widthNew > this.columns) {
         widthNew = this.columns;
@@ -487,14 +487,7 @@ export class AuGrid {
         widthNew = 1;
       }
 
-      let heightNew = this.manipulateInfo.origHeight + yAdd;
-
-      if (this.manipulateInfo.cell.cell.minHeight && heightNew < this.manipulateInfo.cell.cell.minHeight) {
-        heightNew = this.manipulateInfo.cell.cell.minHeight;
-      }
-      if (this.manipulateInfo.cell.cell.maxHeight && heightNew > this.manipulateInfo.cell.cell.maxHeight) {
-        heightNew = this.manipulateInfo.cell.cell.maxHeight;
-      }
+      let heightNew = this.getValidatedCellHeight(this.manipulateInfo.cell.cell, this.manipulateInfo.origHeight + yAdd);
 
       if (heightNew < 1) {
         heightNew = 1;
@@ -507,6 +500,55 @@ export class AuGrid {
   }
   private deactivatePlaceholder() {
     this.placeholder = null;
+  }
+
+  private getValidatedCellWidth(cell: IAuGridCell, width: number) {
+    if (cell.minWidth && width < cell.minWidth) {
+      width = cell.minWidth;
+    }
+    if (cell.maxWidth && width > cell.maxWidth) {
+      width = cell.maxWidth;
+    }
+    if (width < 1) {
+      width = 1;
+    }
+
+    return width;
+  }
+  private getValidatedCellHeight(cell: IAuGridCell, height: number) {
+    if (cell.minHeight && height < cell.minHeight) {
+      height = cell.minHeight;
+    }
+    if (cell.maxHeight && height > cell.maxHeight) {
+      height = cell.maxHeight;
+    }
+    if (height < 1) {
+      height = 1;
+    }
+
+    return height;
+  }
+
+  private findAndUpdateFreePos(cell: IAuGridCell) {
+    let row = 0;
+    while (true) {
+      for (let column = 0; column < this.columns; column++) {
+        const isOverlapping = this.getOverlappingCells({
+          x: column,
+          y: row,
+          width: cell.width,
+          height: cell.height
+        }).length > 0;
+
+        if (!isOverlapping) {
+          cell.x = column;
+          cell.y = row;
+          return;
+        }
+      }
+
+      row++;
+    }
   }
 
   private getOverlappingCells(cell: IAuGridCellBase, checkCells?: IAuGridCellBase[]) {
@@ -581,13 +623,23 @@ export class AuGrid {
     }
   }
 
-  private dispatchSizeUpdatedEvent() {
-    this._element.dispatchEvent(new CustomEvent(
-      "au-grid-size-updated", {
-        bubbles: true,
-        detail: {}
+  private dispatchSizeChangedEvent(timeout?: number) {
+    this._taskQueue.queueTask(() => {
+      const dispatch = () => {
+        this._element.dispatchEvent(new CustomEvent(
+          "au-grid-size-changed", {
+            bubbles: true,
+            detail: {}
+          }
+        ));
+      };
+
+      if (timeout) {
+        setTimeout(dispatch, timeout);
+      } else {
+        dispatch();
       }
-    ));
+    });
   }
   private dispatchChangedEvent() {
     this._element.dispatchEvent(new CustomEvent(
