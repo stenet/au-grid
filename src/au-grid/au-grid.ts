@@ -40,6 +40,7 @@ export class AuGrid {
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
+    this.dispatchSizeUpdatedEvent();
 
     this._onMouseDown = this.onMouseDown.bind(this);
     this._onMouseMove = this.onMouseMove.bind(this);
@@ -64,6 +65,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
+    this.dispatchSizeUpdatedEvent();
     this.dispatchChangedEvent();
   }
   deleteCell(cell: IAuGridCell) {
@@ -77,6 +79,7 @@ export class AuGrid {
     this.calcCellsPosAndSize();
     this.updateHeight();
 
+    this.dispatchSizeUpdatedEvent();
     this.dispatchChangedEvent();
   }
   getCells() {
@@ -88,6 +91,8 @@ export class AuGrid {
     this.validateCellManipulators();
     this.calcCellsPosAndSize();
     this.updateHeight();
+
+    this.dispatchSizeUpdatedEvent();
   }
   columnsChanged() {
     this.validateCellManipulators();
@@ -95,12 +100,16 @@ export class AuGrid {
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
+
+    this.dispatchSizeUpdatedEvent();
   }
   cellHeightChanged() {
     this.resolveOverlaps();
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
+
+    this.dispatchSizeUpdatedEvent();
   }
   canResizeChanged() {
     this.checkMouseDownHandlers();
@@ -168,6 +177,8 @@ export class AuGrid {
     this.compressCells();
     this.calcCellsPosAndSize();
     this.updateHeight();
+
+    this.dispatchSizeUpdatedEvent();
   }
 
   private createCellManipulatorsIfMissing() {
@@ -352,6 +363,7 @@ export class AuGrid {
     this.updatePosAndSizeFromManipulator();
     this.updateHeight();
 
+    this.dispatchSizeUpdatedEvent();
     this.dispatchChangedEvent();
   }
   private clearMouseEvents() {
@@ -396,6 +408,7 @@ export class AuGrid {
     }
 
     this.calcCellPosAndSize(manipulate);
+    this.dispatchSizeUpdatedEvent();
   }
 
   private activatePlaceholder() {
@@ -568,6 +581,14 @@ export class AuGrid {
     }
   }
 
+  private dispatchSizeUpdatedEvent() {
+    this._element.dispatchEvent(new CustomEvent(
+      "au-grid-size-updated", {
+        bubbles: true,
+        detail: {}
+      }
+    ));
+  }
   private dispatchChangedEvent() {
     this._element.dispatchEvent(new CustomEvent(
       "au-grid-changed", {
