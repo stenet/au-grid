@@ -34,7 +34,6 @@ export class AuGrid {
   placeholder: IAuGridCellPlaceholder = null;
 
   bind() {
-    this.checkAutoColumns();
     this.createCellManipulatorsIfMissing();
     this.validateCellManipulators();
     this.resolveOverlaps();
@@ -47,10 +46,12 @@ export class AuGrid {
     this._onMouseMove = this.onMouseMove.bind(this);
     this._onMouseUp = this.onMouseUp.bind(this);
 
-    this.checkAutoColumns();
     this.checkMouseDownHandlers();
   }
-  unbind() {
+  attached() {
+    this.checkAutoColumns();
+  }
+  detached() {
     if (this._onResize) {
       window.removeEventListener("resize", this._onResize);
     }
@@ -97,6 +98,7 @@ export class AuGrid {
   cellsChanged() {
     this.createCellManipulatorsIfMissing();
     this.validateCellManipulators();
+    this.resolveOverlaps();
     this.calcCellsPosAndSize();
     this.updateHeight();
 
@@ -232,6 +234,7 @@ export class AuGrid {
     }).bind(this);
 
     window.addEventListener("resize", this._onResize);
+    this._onResize();
   }
   private validateCellManipulators() {
     for (let cell of this.cells) {
